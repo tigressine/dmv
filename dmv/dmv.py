@@ -6,11 +6,23 @@ class ComponentGraph:
     def __init__(self, components, check_graph_validity=True):
         self.components = {}
         for component in components:
-            component_modules = self._load_component_modules(component)
-            self.components[component["name"]] = component_modules
+            self.components[component["name"]] = {
+                "modules" : self._load_component_modules(component),
+            }
 
         if check_graph_validity:
             self._check_graph_validity()
+
+        self._calculate_component_abstractness()
+        self._calculate_component_instability()
+
+    def __iter__(self):
+        """"""
+        return iter(self.components)
+
+    def __getitem__(self, component):
+        """"""
+        return self.components[component]
 
     def _load_component_modules(self, component):
         """"""
@@ -38,7 +50,7 @@ class ComponentGraph:
     def _check_graph_validity(self):
         """"""
         for component in self.components.values():
-            for module in component.values():
+            for module in component["modules"].values():
                 for dependency in module["dependencies"].items():
                     self._check_dependency_validity(dependency)
 
@@ -53,48 +65,59 @@ class ComponentGraph:
             )
 
         for target_module in target_modules:
-            if target_module not in self.components[target_component]:
+            if target_module not in self.components[target_component]["modules"]:
                 raise KeyError(
                     "module '{0}' does not exist in component '{1}'".format(
                         target_module,
                         target_component,
                     )
                 )
-
-'''
-    def calculate_component_abstractness(self):
+            
+    def _calculate_component_abstractness(self):
         """"""
-        for component in self.components:
-            abnormal_module_count = 0
-            for module in component.modules:
-                if module.kind != "normal":
-                    abnormal_module_count += 1
+        for component in self.components.values():
+            if len(component["modules"]) > 0:
+                abnormal_module_count = 0
+                for module in component["modules"].values():
+                    if module["kind"] != "normal":
+                        abnormal_module_count += 1
 
-            if len(component.modules) > 0:
-                component.abstractness = (
-                    abnormal_module_count / len(component.modules)
+                component["abstractness"] = (
+                    abnormal_module_count / len(component["modules"])
                 )
             else:
-                component.abstractness = 0
+                component["abstractness"] = 0
 
-    def calculate_component_stability(self):
+    def _calculate_component_instability(self):
         """"""
-        for component in self.components:
-            component.fan_out_dependencies = 0
-            for module in component.modules:
-                if len(module.dependencies) > 0:
-                    component.fan_out_dependencies += 1
+        def calculate_instability(fan_in_dependencies, fan_out_dependencies):
+            """"""
+            divisor = fan_in_dependencies + fan_out_dependencies
+            if divisor != 0:
+                return fan_out_dependencies / divisor
+            else:
+                return 0.0
 
-        fan_in_dependency_counts = {}
-        for component in self.components:
-            for module in component.modules:
-                for dependency in module.dependencies.keys():
-                    if dependency in fan_in_dependency_counts:
-                        fan_in_dependency_counts[dependency] += 1
-                    else:
-                        fan_in_dependency_counts[dependency] = 1
-        for component in self.components:
-'''
+        for component in self.components.values():
+            component["fan_out_dependencies"] = 0
+            for module in component["modules"].values():
+                if len(module["dependencies"]) > 0:
+                    component["fan_out_dependencies"] += 1
+
+        for component in self.components.values():
+            component["fan_in_dependencies"] = 0
+
+        for component in self.components.values():
+            for module in component["modules"].values():
+                for target_component in module["dependencies"]:
+                    self.components[target_component]["fan_in_dependencies"] += 1
+
+        for component in self.components.values():
+            component["instability"] = calculate_instability(
+                component["fan_in_dependencies"],
+                component["fan_out_dependencies"],
+            )
+
 
 def error(*arguments, exit_code=1, **keyword_arguments):
     """"""
@@ -116,4 +139,5 @@ if __name__ == "__main__":
     except KeyError as key_error:
         error("{0}".format(str(key_error)))
 
-    print(components.components)
+    for component in components:
+        print(components[component])
