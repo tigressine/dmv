@@ -1,98 +1,91 @@
+import sys
 import json
 
 
-class Module:
-    """"""
-    def __init__(self, name, kind, dependencies):
+class ComponentGraph:
+    def __init__(self, components, ensure_graph_integrity=True):
+        self.components = {}
+        for component in components:
+            component_modules = self._load_component_modules(component)
+            self.components[component["name"]] = component_modules
+
+        if ensure_graph_integrity:
+            self._ensure_data_integrity()
+
+    def _load_component_modules(self, component):
         """"""
-        self.name = name
-        self.kind = kind
-        self.dependencies = self.parse_dependencies(dependencies)
+        component_modules = {}
+        for module in component["modules"]:
+            component_modules[module["name"]] = {
+                "kind" : module["kind"],
+                "dependencies" : self._load_module_dependencies(module),
+            }
 
-    def __str__(self):
+        return component_modules
+
+    def _load_module_dependencies(self, module):
         """"""
-        return "\n".join(self.get_formatted_lines())
-
-    def get_formatted_lines(self):
-        """"""
-        HEADER_FORMAT = "{0} module: {1}"
-        DEPENDENCY_FORMAT = "    dependency: {0}.{1}"
-
-        lines = []
-        lines.append(HEADER_FORMAT.format(self.kind, self.name))
-        for component, modules in self.dependencies.items():
-            for module in modules:
-                lines.append(DEPENDENCY_FORMAT.format(component, module))
-
-        return lines 
-
-    def parse_dependencies(self, dependencies):
-        """"""
-        dependency_table = {}
-        for dependency in dependencies:
-            component, module = dependency.split(".")
-            if component in dependency_table:
-                dependency_table[component].append(module)
+        module_dependencies = {}
+        for dependency in module["dependencies"]:
+            target_component, target_module = dependency.split(".")
+            if target_component in module_dependencies:
+                module_dependencies[target_component].append(target_module)
             else:
-                dependency_table[component] = [module]
+                module_dependencies[target_component] = [target_module]
 
-        return dependency_table
+        return module_dependencies
 
-
-class Component:
-    """"""
-    def __init__(self, name, modules):
+'''
+    def calculate_component_abstractness(self):
         """"""
-        self.name = name
-        self.modules = self.parse_modules(modules)
-        self.abstractness = self.calculate_abstractness()
+        for component in self.components:
+            abnormal_module_count = 0
+            for module in component.modules:
+                if module.kind != "normal":
+                    abnormal_module_count += 1
 
-    def __str__(self):
-        """"""
-        HEADER_FORMAT = "component: {0}"
-        MODULE_FORMAT = "    {0}"
-
-        lines = []
-        lines.append(HEADER_FORMAT.format(self.name))
-        for module in self.modules:
-            for module_line in module.get_formatted_lines():
-                lines.append(MODULE_FORMAT.format(module_line))
-
-        return "\n".join(lines)
-
-    def parse_modules(self, modules):
-        """"""
-        initialized_module_list = []
-        for module in modules:
-            initialized_module_list.append(
-                Module(
-                    module["name"],
-                    module["kind"],
-                    module["dependencies"],
+            if len(component.modules) > 0:
+                component.abstractness = (
+                    abnormal_module_count / len(component.modules)
                 )
-            )
+            else:
+                component.abstractness = 0
 
-        return initialized_module_list
+    def calculate_component_stability(self):
+        """"""
+        for component in self.components:
+            component.fan_out_dependencies = 0
+            for module in component.modules:
+                if len(module.dependencies) > 0:
+                    component.fan_out_dependencies += 1
 
-    def calculate_abstractness(self):
-        abnormal_module_count = 0
-        for module in self.modules:
-            if module.kind != "normal":
-                abnormal_module_count += 1
+        fan_in_dependency_counts = {}
+        for component in self.components:
+            for module in component.modules:
+                for dependency in module.dependencies.keys():
+                    if dependency in fan_in_dependency_counts:
+                        fan_in_dependency_counts[dependency] += 1
+                    else:
+                        fan_in_dependency_counts[dependency] = 1
+        for component in self.components:
+'''
 
-        if len(self.modules) > 0:
-            return abnormal_module_count / len(self.modules)
-        else:
-            return 0
+def error(*arguments, exit_code=1, **keyword_arguments):
+    """"""
+    print(*arguments, file=sys.stderr, **keyword_arguments)
+    exit(exit_code)
 
 
-with open("test.json", "r") as json_file:
-    components = []
-    for component in json.load(json_file):
-        components.append(Component(component["name"], component["modules"]))
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        error("Please pass a JSON filename as your first argument.")
 
-for component in components:
-    print(component)
+    try:
+        with open(sys.argv[1], "r") as open_file:
+            components = ComponentGraph(json.load(open_file))
+    except FileNotFoundError:
+        error("'{}' not found!".format(sys.argv[1]))
+    except json.JSONDecodeError:
+        error("Could not parse '{}'!".format(sys.argv[1]))
 
-for component in components:
-    print(component.name, component.abstractness)
+    print(components.components)
