@@ -3,14 +3,14 @@ import json
 
 
 class ComponentGraph:
-    def __init__(self, components, ensure_graph_integrity=True):
+    def __init__(self, components, check_graph_validity=True):
         self.components = {}
         for component in components:
             component_modules = self._load_component_modules(component)
             self.components[component["name"]] = component_modules
 
-        if ensure_graph_integrity:
-            self._ensure_data_integrity()
+        if check_graph_validity:
+            self._check_graph_validity()
 
     def _load_component_modules(self, component):
         """"""
@@ -34,6 +34,32 @@ class ComponentGraph:
                 module_dependencies[target_component] = [target_module]
 
         return module_dependencies
+
+    def _check_graph_validity(self):
+        """"""
+        for component in self.components.values():
+            for module in component.values():
+                for dependency in module["dependencies"].items():
+                    self._check_dependency_validity(dependency)
+
+    def _check_dependency_validity(self, dependency):
+        """"""
+        target_component, target_modules = dependency
+        if target_component not in self.components:
+            raise KeyError(
+                "component '{0}' does not exist".format(
+                    target_component,
+                )
+            )
+
+        for target_module in target_modules:
+            if target_module not in self.components[target_component]:
+                raise KeyError(
+                    "module '{0}' does not exist in component '{1}'".format(
+                        target_module,
+                        target_component,
+                    )
+                )
 
 '''
     def calculate_component_abstractness(self):
@@ -72,7 +98,7 @@ class ComponentGraph:
 
 def error(*arguments, exit_code=1, **keyword_arguments):
     """"""
-    print(*arguments, file=sys.stderr, **keyword_arguments)
+    print("DMV Error:", *arguments, file=sys.stderr, **keyword_arguments)
     exit(exit_code)
 
 
@@ -84,8 +110,10 @@ if __name__ == "__main__":
         with open(sys.argv[1], "r") as open_file:
             components = ComponentGraph(json.load(open_file))
     except FileNotFoundError:
-        error("'{}' not found!".format(sys.argv[1]))
+        error("\"'{0}' not found\"".format(sys.argv[1]))
     except json.JSONDecodeError:
-        error("Could not parse '{}'!".format(sys.argv[1]))
+        error("\"could not parse '{0}'\"".format(sys.argv[1]))
+    except KeyError as key_error:
+        error("{0}".format(str(key_error)))
 
     print(components.components)
