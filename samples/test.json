@@ -1,0 +1,71 @@
+[
+    {
+        "name" : "reader",
+        "modules" : [
+            {
+                "name" : "BigReader",
+                "kind" : "normal",
+                "dependencies" : [
+                    "writer.Pen"
+                ]
+            },
+            {
+                "name" : "SmallReader",
+                "kind" : "normal",
+                "dependencies" : [
+                    "writer.Pencil",
+                    "writer.Pen"
+                ]
+            },
+            {
+                "name" : "ReaderInterface",
+                "kind" : "interface",
+                "dependencies" : [
+                    "googler.Chrome"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "writer",
+        "modules" : [
+            {
+                "name" : "Pen",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Pencil",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Utensil",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "googler",
+        "modules" : [
+            {
+                "name" : "Chrome",
+                "kind" : "abstract",
+                "dependencies" : [
+                    "writer.Pencil"
+                ]
+            },
+            {
+                "name" : "Firefox",
+                "kind" : "abstract",
+                "dependencies" : [
+                    "writer.Pen"
+                ]
+            }
+        ]
+    }
+]
