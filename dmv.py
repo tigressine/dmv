@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
-""""""
+"""Create an I/A graph of a software architecture.
+
+This small piece of software is inspired by the metrics found in the textbook
+"Clean Architecture" by Robert Martin.
+
+Written by Tiger Sachse.
+"""
 import sys
 import json
 import pathlib
@@ -7,9 +13,9 @@ import matplotlib.pyplot
 
 
 class ComponentGraph:
-    """"""
+    """Contain and organize a software architecture's component graph."""
     def __init__(self, components, check_graph_validity=True):
-        """"""
+        """Initialize this graph with all components, then calculate metrics."""
         self.components = {}
         for component in components:
             self.components[component["name"]] = {
@@ -23,15 +29,15 @@ class ComponentGraph:
         self._calculate_component_instability()
 
     def __iter__(self):
-        """"""
+        """Provide an iterator to iterate over all components."""
         return iter(self.components)
 
     def __getitem__(self, component):
-        """"""
+        """Allow access to underlying components dictionary with [] indexing."""
         return self.components[component]
 
     def _load_component_modules(self, component):
-        """"""
+        """Load a component's modules into the graph."""
         component_modules = {}
         for module in component["modules"]:
             component_modules[module["name"]] = {
@@ -42,7 +48,7 @@ class ComponentGraph:
         return component_modules
 
     def _load_module_dependencies(self, module):
-        """"""
+        """Load a module's dependencies into the graph."""
         module_dependencies = {}
         for dependency in module["dependencies"]:
             target_component, target_module = dependency.split(".")
@@ -54,14 +60,14 @@ class ComponentGraph:
         return module_dependencies
 
     def _check_graph_validity(self):
-        """"""
+        """Ensure all module's dependencies exist."""
         for component in self.components.values():
             for module in component["modules"].values():
                 for dependency in module["dependencies"].items():
                     self._check_dependency_validity(dependency)
 
     def _check_dependency_validity(self, dependency):
-        """"""
+        """Ensure a specific dependency exists."""
         target_component, target_modules = dependency
         if target_component not in self.components:
             raise KeyError(
@@ -80,7 +86,7 @@ class ComponentGraph:
                 )
             
     def _calculate_component_abstractness(self):
-        """"""
+        """Calculate the abstractness of all components."""
         for component in self.components.values():
             if len(component["modules"]) > 0:
                 abnormal_module_count = 0
@@ -95,9 +101,9 @@ class ComponentGraph:
                 component["abstractness"] = 0
 
     def _calculate_component_instability(self):
-        """"""
+        """Calculate the instability of all components."""
         def calculate_instability(fan_in_dependencies, fan_out_dependencies):
-            """"""
+            """Calculate instability from fan in and fan out dependencies."""
             divisor = fan_in_dependencies + fan_out_dependencies
             if divisor != 0:
                 return fan_out_dependencies / divisor
@@ -125,7 +131,7 @@ class ComponentGraph:
             )
 
     def to_file(self, file_name):
-        """"""
+        """Write this graph to a file with it's calculated metrics."""
         COMPONENT_LINE_FORMAT = "Component '{0}'\n"
         COMPONENT_STATS_LINE_FORMAT = (
             "Abstractness: {0:.3f}, Instability: {1:.3f}\n"
@@ -158,11 +164,12 @@ class ComponentGraph:
 
 
 def error(*arguments, exit_code=1, **keyword_arguments):
-    """"""
+    """Format an error and exit the program."""
     print("DMV Error:", *arguments, file=sys.stderr, **keyword_arguments)
     exit(exit_code)
 
 
+# Main entry point to the script.
 if __name__ == "__main__":
     DATA_FILE_FORMAT = "{0}.data"
     GRAPH_FILE_FORMAT = "{0}.png"
@@ -170,8 +177,10 @@ if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         error("Please pass a JSON filename as your first argument.")
+    else:
+        file_name = pathlib.Path(sys.argv[1]).stem
 
-    file_name = pathlib.Path(sys.argv[1]).stem
+    # Attempt to load the JSON file into a ComponentGraph.
     try:
         with open(sys.argv[1], "r") as open_file:
             components = ComponentGraph(json.load(open_file))
@@ -182,8 +191,11 @@ if __name__ == "__main__":
     except KeyError as key_error:
         error("{0}".format(str(key_error)))
 
+    # Write the ComponentGraph and its metrics to a file.
     components.to_file(DATA_FILE_FORMAT.format(file_name))
 
+    # Create a new plot using each component's 'instability' and 'abstractness'
+    # values as points. Plot these points and save the graph to a file.
     matplotlib.pyplot.title(TITLE_FORMAT.format(file_name.upper()))
     matplotlib.pyplot.xlabel("Abstractness")
     matplotlib.pyplot.ylabel("Instability")
