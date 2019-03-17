@@ -142,6 +142,18 @@ class ComponentGraph:
                         0,
                     )
                 )
+                modules = component_values["modules"].items()
+                for module_name, module_values in modules:
+                    open_file.write(MODULE_LINE_FORMAT.format(module_name))
+                    dependencies = module_values["dependencies"].items()
+                    for target_component, target_modules in dependencies:
+                        for target_module in target_modules:
+                            open_file.write(
+                                DEPENDENCY_LINE_FORMAT.format(
+                                    target_component,
+                                    target_module,
+                                )
+                            )
                 open_file.write("\n")
 
 

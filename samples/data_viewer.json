@@ -16,6 +16,25 @@
                     "controllers.RequestProcessor",
                     "authorizers.RequestAuthorizer"
                 ]
+            },
+            {
+                "name" : "InterfaceFrame",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "MainFrame",
+                "kind" : "normal",
+                "dependencies" : [
+                    "webview.DataTable"
+                ]
+            },
+            {
+                "name" : "AuxillaryFrame",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
             }
         ]
     },
@@ -24,9 +43,15 @@
         "modules" : [
             {
                 "name" : "DataTable",
-                "kind" : "normal",
+                "kind" : "interface",
                 "dependencies" : [
                     "presenters.TableFormatter"
+                ]
+            },
+            {
+                "name" : "HTMLBuilder",
+                "kind" : "normal",
+                "dependencies" : [
                 ]
             }
         ]
@@ -43,6 +68,12 @@
             },
             {
                 "name" : "PrinterSpool",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "DataSpool",
                 "kind" : "normal",
                 "dependencies" : [
                 ]
@@ -54,6 +85,25 @@
         "modules" : [
             {
                 "name" : "TableFormatter",
+                "kind" : "abstract",
+                "dependencies" : [
+                    "interactors.DataReader"
+                ]
+            },
+            {
+                "name" : "ColumnFormatter",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "RowFormatter",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "DataFormatter",
                 "kind" : "normal",
                 "dependencies" : [
                     "interactors.DataTranslator"
@@ -66,13 +116,13 @@
         "modules" : [
             {
                 "name" : "Decryptor",
-                "kind" : "normal",
+                "kind" : "abstract",
                 "dependencies" : [
                 ]
             },
             {
                 "name" : "Encryptor",
-                "kind" : "normal",
+                "kind" : "abstract",
                 "dependencies" : [
                 ]
             }
@@ -83,37 +133,43 @@
         "modules" : [
             {
                 "name" : "UserColumn",
-                "kind" : "normal",
+                "kind" : "interface",
                 "dependencies" : [
                 ]
             },
             {
                 "name" : "CardColumn",
-                "kind" : "normal",
+                "kind" : "interface",
                 "dependencies" : [
                 ]
             },
             {
                 "name" : "TransactionColumn",
-                "kind" : "normal",
+                "kind" : "interface",
                 "dependencies" : [
                 ]
             },
             {
                 "name" : "ProductColumn",
-                "kind" : "normal",
+                "kind" : "interface",
                 "dependencies" : [
                 ]
             },
             {
                 "name" : "TimeColumn",
-                "kind" : "normal",
+                "kind" : "interface",
                 "dependencies" : [
                 ]
             },
             {
                 "name" : "Column",
                 "kind" : "abstract",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "DataWriter",
+                "kind" : "normal",
                 "dependencies" : [
                 ]
             }
@@ -147,6 +203,7 @@
                 "name" : "User",
                 "kind" : "normal",
                 "dependencies" : [
+                    "database.UserColumn",
                     "permissions.UserPermissions"
                 ]
             },
@@ -154,18 +211,21 @@
                 "name" : "Card",
                 "kind" : "normal",
                 "dependencies" : [
+                    "database.CardColumn"
                 ]
             },
             {
                 "name" : "Transaction",
                 "kind" : "normal",
                 "dependencies" : [
+                    "database.TransactionColumn"
                 ]
             },
             {
                 "name" : "Product",
                 "kind" : "normal",
                 "dependencies" : [
+                    "database.ProductColumn"
                 ]
             },
             {
@@ -188,6 +248,18 @@
                     "entities.Transaction",
                     "entities.Product"
                 ]
+            },
+            {
+                "name" : "DataReader",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "DataWriter",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
             }
         ]
     },
@@ -199,6 +271,12 @@
                 "kind" : "normal",
                 "dependencies" : [
                     "interactors.DataTranslator"
+                ]
+            },
+            {
+                "name" : "Processor",
+                "kind" : "abstract",
+                "dependencies" : [
                 ]
             }
         ]
@@ -212,6 +290,18 @@
                 "dependencies" : [
                     "permissions.UserPermissions"
                 ]
+            },
+            {
+                "name" : "Authorizer",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "RequestReauthorizer",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
             }
         ]
     },
@@ -221,6 +311,12 @@
             {
                 "name" : "UserPermissions",
                 "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Permissions",
+                "kind" : "abstract",
                 "dependencies" : [
                 ]
             }
