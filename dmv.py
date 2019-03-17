@@ -2,6 +2,7 @@
 """"""
 import sys
 import json
+import pathlib
 import matplotlib.pyplot
 
 
@@ -127,7 +128,7 @@ class ComponentGraph:
         """"""
         COMPONENT_LINE_FORMAT = "Component '{0}'\n"
         COMPONENT_STATS_LINE_FORMAT = (
-            "Abstractness: {0:.3f}, Instability: {1:.3f}, Distance: {2:.3f}\n"
+            "Abstractness: {0:.3f}, Instability: {1:.3f}\n"
         )
         MODULE_LINE_FORMAT = "    Module '{0}'\n"
         DEPENDENCY_LINE_FORMAT = "        Dependency '{0}.{1}'\n"
@@ -139,7 +140,6 @@ class ComponentGraph:
                     COMPONENT_STATS_LINE_FORMAT.format(
                         component_values["abstractness"],
                         component_values["instability"],
-                        0,
                     )
                 )
                 modules = component_values["modules"].items()
@@ -164,9 +164,14 @@ def error(*arguments, exit_code=1, **keyword_arguments):
 
 
 if __name__ == "__main__":
+    DATA_FILE_FORMAT = "{0}.data"
+    GRAPH_FILE_FORMAT = "{0}.png"
+    TITLE_FORMAT = "I/A GRAPH FOR {0}"
+
     if len(sys.argv) < 2:
         error("Please pass a JSON filename as your first argument.")
 
+    file_name = pathlib.Path(sys.argv[1]).stem
     try:
         with open(sys.argv[1], "r") as open_file:
             components = ComponentGraph(json.load(open_file))
@@ -177,15 +182,19 @@ if __name__ == "__main__":
     except KeyError as key_error:
         error("{0}".format(str(key_error)))
 
+    components.to_file(DATA_FILE_FORMAT.format(file_name))
+
+    matplotlib.pyplot.title(TITLE_FORMAT.format(file_name.upper()))
+    matplotlib.pyplot.xlabel("Abstractness")
+    matplotlib.pyplot.ylabel("Instability")
+
     x_values = [components[component]["instability"] for component in components]
     y_values = [components[component]["abstractness"] for component in components]
-
-    components.to_file("data.data")
     
     axes = matplotlib.pyplot.gca()
     axes.set_xlim((-0.1, 1.1))
     axes.set_ylim((-0.1, 1.1))
-
-    matplotlib.pyplot.scatter(x_values, y_values)
-    matplotlib.pyplot.plot((0.0, 1.0), (1.0, 0.0))
-    matplotlib.pyplot.savefig("plot.png")
+    matplotlib.pyplot.plot((0.0, 1.0), (1.0, 0.0), color="black", zorder=0)
+    matplotlib.pyplot.scatter(x_values, y_values, color="green", zorder=100)
+    
+    matplotlib.pyplot.savefig(GRAPH_FILE_FORMAT.format(file_name))

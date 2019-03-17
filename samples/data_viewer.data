@@ -1,0 +1,104 @@
+Component 'main'
+Abstractness: 0.200, Instability: 1.000, Distance: 0.000
+    Module 'GraphicalUserIterface'
+        Dependency 'webview.DataTable'
+    Module 'DataManipulator'
+        Dependency 'controllers.RequestProcessor'
+        Dependency 'authorizers.RequestAuthorizer'
+    Module 'InterfaceFrame'
+    Module 'MainFrame'
+        Dependency 'webview.DataTable'
+    Module 'AuxillaryFrame'
+
+Component 'webview'
+Abstractness: 0.500, Instability: 0.333, Distance: 0.000
+    Module 'DataTable'
+        Dependency 'presenters.TableFormatter'
+    Module 'HTMLBuilder'
+
+Component 'printview'
+Abstractness: 0.333, Instability: 1.000, Distance: 0.000
+    Module 'DataTable'
+        Dependency 'presenters.TableFormatter'
+    Module 'PrinterSpool'
+    Module 'DataSpool'
+
+Component 'presenters'
+Abstractness: 0.750, Instability: 0.500, Distance: 0.000
+    Module 'TableFormatter'
+        Dependency 'interactors.DataReader'
+    Module 'ColumnFormatter'
+    Module 'RowFormatter'
+    Module 'DataFormatter'
+        Dependency 'interactors.DataTranslator'
+
+Component 'cryptors'
+Abstractness: 1.000, Instability: 0.000, Distance: 0.000
+    Module 'Decryptor'
+    Module 'Encryptor'
+
+Component 'database'
+Abstractness: 0.857, Instability: 0.000, Distance: 0.000
+    Module 'UserColumn'
+    Module 'CardColumn'
+    Module 'TransactionColumn'
+    Module 'ProductColumn'
+    Module 'TimeColumn'
+    Module 'Column'
+    Module 'DataWriter'
+
+Component 'sanitizers'
+Abstractness: 0.000, Instability: 1.000, Distance: 0.000
+    Module 'DataSanitizer'
+        Dependency 'cryptors.Encryptor'
+        Dependency 'cryptors.Decryptor'
+        Dependency 'database.UserColumn'
+        Dependency 'database.CardColumn'
+        Dependency 'database.TransactionColumn'
+        Dependency 'database.ProductColumn'
+        Dependency 'entities.User'
+        Dependency 'entities.Card'
+        Dependency 'entities.Transaction'
+        Dependency 'entities.Product'
+
+Component 'entities'
+Abstractness: 0.200, Instability: 0.667, Distance: 0.000
+    Module 'User'
+        Dependency 'database.UserColumn'
+        Dependency 'permissions.UserPermissions'
+    Module 'Card'
+        Dependency 'database.CardColumn'
+    Module 'Transaction'
+        Dependency 'database.TransactionColumn'
+    Module 'Product'
+        Dependency 'database.ProductColumn'
+    Module 'Entity'
+
+Component 'interactors'
+Abstractness: 0.667, Instability: 0.250, Distance: 0.000
+    Module 'DataTranslator'
+        Dependency 'entities.User'
+        Dependency 'entities.Card'
+        Dependency 'entities.Transaction'
+        Dependency 'entities.Product'
+    Module 'DataReader'
+    Module 'DataWriter'
+
+Component 'controllers'
+Abstractness: 0.500, Instability: 0.500, Distance: 0.000
+    Module 'RequestProcessor'
+        Dependency 'interactors.DataTranslator'
+    Module 'Processor'
+
+Component 'authorizers'
+Abstractness: 0.333, Instability: 0.500, Distance: 0.000
+    Module 'RequestAuthorizer'
+        Dependency 'permissions.UserPermissions'
+    Module 'Authorizer'
+    Module 'RequestReauthorizer'
+
+Component 'permissions'
+Abstractness: 0.500, Instability: 0.000, Distance: 0.000
+    Module 'UserPermissions'
+    Module 'Permissions'
+
