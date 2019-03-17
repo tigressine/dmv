@@ -8,4 +8,5 @@ To use this script, execute `dmv.py` with 1 argument: a `JSON` file detailing yo
 ```
 
 # Sample
-A sample architecture named `data_viewer.json` is located in [samples](../samples/data_viewer.json)). When analyzed, this architecture produces [these metrics](../samples/data_viewer.data) and this graph:
+A sample architecture named `data_viewer.json` is located in [samples](../samples/data_viewer.json)). When analyzed, this architecture produces [these metrics](../samples/data_viewer.data) and this graph:   
+![GRAPH NOT AVAILABLE](../samples/data_viewer.png)
