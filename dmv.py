@@ -1,9 +1,14 @@
+#! /usr/bin/env python3
+""""""
 import sys
 import json
+import matplotlib.pyplot
 
 
 class ComponentGraph:
+    """"""
     def __init__(self, components, check_graph_validity=True):
+        """"""
         self.components = {}
         for component in components:
             self.components[component["name"]] = {
@@ -118,6 +123,27 @@ class ComponentGraph:
                 component["fan_out_dependencies"],
             )
 
+    def to_file(self, file_name):
+        """"""
+        COMPONENT_LINE_FORMAT = "Component '{0}'\n"
+        COMPONENT_STATS_LINE_FORMAT = (
+            "Abstractness: {0:.3f}, Instability: {1:.3f}, Distance: {2:.3f}\n"
+        )
+        MODULE_LINE_FORMAT = "    Module '{0}'\n"
+        DEPENDENCY_LINE_FORMAT = "        Dependency '{0}.{1}'\n"
+
+        with open(file_name, "w") as open_file:
+            for component_name, component_values in self.components.items():
+                open_file.write(COMPONENT_LINE_FORMAT.format(component_name))
+                open_file.write(
+                    COMPONENT_STATS_LINE_FORMAT.format(
+                        component_values["abstractness"],
+                        component_values["instability"],
+                        0,
+                    )
+                )
+                open_file.write("\n")
+
 
 def error(*arguments, exit_code=1, **keyword_arguments):
     """"""
@@ -139,5 +165,15 @@ if __name__ == "__main__":
     except KeyError as key_error:
         error("{0}".format(str(key_error)))
 
-    for component in components:
-        print(components[component])
+    x_values = [components[component]["instability"] for component in components]
+    y_values = [components[component]["abstractness"] for component in components]
+
+    components.to_file("data.data")
+    
+    axes = matplotlib.pyplot.gca()
+    axes.set_xlim((-0.1, 1.1))
+    axes.set_ylim((-0.1, 1.1))
+
+    matplotlib.pyplot.scatter(x_values, y_values)
+    matplotlib.pyplot.plot((0.0, 1.0), (1.0, 0.0))
+    matplotlib.pyplot.savefig("plot.png")

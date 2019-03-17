@@ -1,0 +1,229 @@
+[
+    {
+        "name" : "main",
+        "modules" : [
+            {
+                "name" : "GraphicalUserIterface",
+                "kind" : "normal",
+                "dependencies" : [
+                    "webview.DataTable"
+                ]
+            },
+            {
+                "name" : "DataManipulator",
+                "kind" : "normal",
+                "dependencies" : [
+                    "controllers.RequestProcessor",
+                    "authorizers.RequestAuthorizer"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "webview",
+        "modules" : [
+            {
+                "name" : "DataTable",
+                "kind" : "normal",
+                "dependencies" : [
+                    "presenters.TableFormatter"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "printview",
+        "modules" : [
+            {
+                "name" : "DataTable",
+                "kind" : "normal",
+                "dependencies" : [
+                    "presenters.TableFormatter"
+                ]
+            },
+            {
+                "name" : "PrinterSpool",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "presenters",
+        "modules" : [
+            {
+                "name" : "TableFormatter",
+                "kind" : "normal",
+                "dependencies" : [
+                    "interactors.DataTranslator"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "cryptors",
+        "modules" : [
+            {
+                "name" : "Decryptor",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Encryptor",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "database",
+        "modules" : [
+            {
+                "name" : "UserColumn",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "CardColumn",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "TransactionColumn",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "ProductColumn",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "TimeColumn",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Column",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "sanitizers",
+        "modules" : [
+            {
+                "name" : "DataSanitizer",
+                "kind" : "normal",
+                "dependencies" : [
+                    "cryptors.Encryptor",
+                    "cryptors.Decryptor",
+                    "database.UserColumn",
+                    "database.CardColumn",
+                    "database.TransactionColumn",
+                    "database.ProductColumn",
+                    "entities.User",
+                    "entities.Card",
+                    "entities.Transaction",
+                    "entities.Product"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "entities",
+        "modules" : [
+            {
+                "name" : "User",
+                "kind" : "normal",
+                "dependencies" : [
+                    "permissions.UserPermissions"
+                ]
+            },
+            {
+                "name" : "Card",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Transaction",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Product",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            },
+            {
+                "name" : "Entity",
+                "kind" : "abstract",
+                "dependencies" : [
+                ]
+            }
+        ] 
+    },
+    {
+        "name" : "interactors",
+        "modules" : [
+            {
+                "name" : "DataTranslator",
+                "kind" : "normal",
+                "dependencies" : [
+                    "entities.User",
+                    "entities.Card",
+                    "entities.Transaction",
+                    "entities.Product"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "controllers",
+        "modules" : [
+            {
+                "name" : "RequestProcessor",
+                "kind" : "normal",
+                "dependencies" : [
+                    "interactors.DataTranslator"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "authorizers",
+        "modules" : [
+            {
+                "name" : "RequestAuthorizer",
+                "kind" : "normal",
+                "dependencies" : [
+                    "permissions.UserPermissions"
+                ]
+            }
+        ]
+    },
+    {
+        "name" : "permissions",
+        "modules" : [
+            {
+                "name" : "UserPermissions",
+                "kind" : "normal",
+                "dependencies" : [
+                ]
+            }
+        ]
+    }
+]
